@@ -426,6 +426,9 @@ export default function HomeScreen() {
                     onPress={() => copyToClipboard(item.name)}
                   >
                     <Ionicons name="copy-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'نسخ' : 'Copy'}
+                    </Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
@@ -433,6 +436,9 @@ export default function HomeScreen() {
                     onPress={() => saveName(item.name)}
                   >
                     <Ionicons name="bookmark-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'حفظ' : 'Save'}
+                    </Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
@@ -440,6 +446,9 @@ export default function HomeScreen() {
                     onPress={() => checkDomain(item.name)}
                   >
                     <Ionicons name="globe-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'نطاق' : 'Domain'}
+                    </Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
@@ -447,6 +456,9 @@ export default function HomeScreen() {
                     onPress={() => generateLogo(item.name)}
                   >
                     <Ionicons name="image-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'لوغو' : 'Logo'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
