@@ -434,18 +434,27 @@ export default function HomeScreen() {
         {/* Clear Results Button */}
         {generatedNames.length > 0 && (
           <TouchableOpacity
-            style={styles.clearButton}
+            style={[styles.clearButton, loading && styles.clearButtonDisabled]}
             onPress={() => {
-              setGeneratedNames([]);
-              setDetectedLanguage(null);
-              // Automatically generate new names with same settings
-              generateNames();
+              if (!loading) {
+                setGeneratedNames([]);
+                setDetectedLanguage(null);
+                // Automatically generate new names with same settings
+                generateNames();
+              }
             }}
             disabled={loading}
           >
-            <Ionicons name="refresh-outline" size={20} color="#6366f1" />
-            <Text style={styles.clearButtonText}>
-              {language === 'ar' ? 'توليد أسماء جديدة' : 'Generate New Names'}
+            {loading ? (
+              <ActivityIndicator size="small" color="#6366f1" />
+            ) : (
+              <Ionicons name="refresh-outline" size={20} color="#6366f1" />
+            )}
+            <Text style={[styles.clearButtonText, loading && styles.clearButtonTextDisabled]}>
+              {loading 
+                ? (language === 'ar' ? 'جارٍ التوليد...' : 'Generating...')
+                : (language === 'ar' ? 'توليد أسماء جديدة' : 'Generate New Names')
+              }
             </Text>
           </TouchableOpacity>
         )}
