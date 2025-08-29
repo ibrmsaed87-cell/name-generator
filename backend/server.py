@@ -148,6 +148,34 @@ LOCATIONS_EN = [
     "West", "North", "South", "Central"
 ]
 
+def detect_language(text: str) -> str:
+    """Detect if text is Arabic or English based on character analysis"""
+    if not text:
+        return "en"
+    
+    # Count Arabic and English characters
+    arabic_chars = 0
+    english_chars = 0
+    total_chars = 0
+    
+    for char in text:
+        if char.isalpha():
+            total_chars += 1
+            # Check if character is Arabic (Unicode range)
+            if '\u0600' <= char <= '\u06FF' or '\u0750' <= char <= '\u077F':
+                arabic_chars += 1
+            elif 'a' <= char.lower() <= 'z':
+                english_chars += 1
+    
+    if total_chars == 0:
+        return "en"  # Default to English if no alphabetic characters
+    
+    # If more than 50% Arabic characters, consider it Arabic
+    if arabic_chars > english_chars:
+        return "ar"
+    else:
+        return "en"
+
 class NameGenerator:
     def __init__(self):
         self.llm_key = os.environ.get('EMERGENT_LLM_KEY')
