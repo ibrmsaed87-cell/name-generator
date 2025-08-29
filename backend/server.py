@@ -61,12 +61,6 @@ class LogoImageRequest(BaseModel):
     style: Optional[str] = "modern"
     colors: Optional[List[str]] = ["blue", "white"]
 
-# Keep the old class for backward compatibility temporarily
-class LogoGenerationRequest(BaseModel):
-    company_name: str
-    style: Optional[str] = "modern"
-    colors: Optional[List[str]] = ["blue", "white"]
-
 async def generate_logo_image_free(company_name: str, style: str, colors: List[str]) -> dict:
     """Generate logo image using free Pollinations.ai API"""
     try:
