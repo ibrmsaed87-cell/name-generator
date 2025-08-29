@@ -72,9 +72,69 @@ export default function DomainCheckScreen() {
   };
 
   const openRegistrar = (domain: string) => {
-    // Open domain registrar (simplified - in production, you'd use specific registrar APIs)
-    const registrarUrl = `https://www.namecheap.com/domains/registration/results/?domain=${domain}`;
-    Linking.openURL(registrarUrl);
+    try {
+      // Clean domain for registration (remove Arabic characters and use English equivalent)
+      const cleanDomain = domain
+        .replace(/[^\w.-]/g, '') // Remove any special characters except . and -
+        .toLowerCase();
+      
+      // If domain is empty or invalid after cleaning, use the company name
+      const fallbackDomain = name?.replace(/\s+/g, '').toLowerCase() || 'company';
+      const finalDomain = cleanDomain.length > 3 ? cleanDomain : fallbackDomain;
+      
+      // Use multiple registrar options
+      Alert.alert(
+        language === 'ar' ? 'اختر مسجل النطاق' : 'Choose Domain Registrar',
+        language === 'ar' ? 'أين تريد تسجيل النطاق؟' : 'Where would you like to register the domain?',
+        [
+          {
+            text: 'Namecheap',
+            onPress: () => {
+              const url = `https://www.namecheap.com/domains/registration/results/?domain=${finalDomain}`;
+              Linking.openURL(url).catch(err => {
+                Alert.alert(
+                  language === 'ar' ? 'خطأ' : 'Error',
+                  language === 'ar' ? 'فشل في فتح الرابط' : 'Failed to open link'
+                );
+              });
+            }
+          },
+          {
+            text: 'GoDaddy', 
+            onPress: () => {
+              const url = `https://www.godaddy.com/domainsearch/find?domainToCheck=${finalDomain}`;
+              Linking.openURL(url).catch(err => {
+                Alert.alert(
+                  language === 'ar' ? 'خطأ' : 'Error', 
+                  language === 'ar' ? 'فشل في فتح الرابط' : 'Failed to open link'
+                );
+              });
+            }
+          },
+          {
+            text: 'Domain.com',
+            onPress: () => {
+              const url = `https://www.domain.com/domains/search/?domain=${finalDomain}`;
+              Linking.openURL(url).catch(err => {
+                Alert.alert(
+                  language === 'ar' ? 'خطأ' : 'Error',
+                  language === 'ar' ? 'فشل في فتح الرابط' : 'Failed to open link'
+                );
+              });
+            }
+          },
+          {
+            text: language === 'ar' ? 'إلغاء' : 'Cancel',
+            style: 'cancel'
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert(
+        language === 'ar' ? 'خطأ' : 'Error',
+        language === 'ar' ? 'فشل في فتح رابط التسجيل' : 'Failed to open registration link'
+      );
+    }
   };
 
   const getStatusColor = (available: boolean) => {
