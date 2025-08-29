@@ -261,15 +261,30 @@ export default function LogoGeneratorScreen() {
                 {logoResult.logo_description}
               </Text>
               
-              <TouchableOpacity
-                style={styles.copyButton}
-                onPress={copyDescription}
-              >
-                <Ionicons name="copy-outline" size={20} color="#6366f1" />
-                <Text style={styles.copyButtonText}>
-                  {language === 'ar' ? 'نسخ الوصف' : 'Copy Description'}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.copyButton}
+                  onPress={copyDescription}
+                >
+                  <Ionicons name="copy-outline" size={20} color="#6366f1" />
+                  <Text style={styles.copyButtonText}>
+                    {language === 'ar' ? 'نسخ الوصف' : 'Copy Description'}
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={styles.regenerateButton}
+                  onPress={() => {
+                    setLogoResult(null);
+                    generateLogo();
+                  }}
+                >
+                  <Ionicons name="refresh-outline" size={20} color="#10b981" />
+                  <Text style={styles.regenerateButtonText}>
+                    {language === 'ar' ? 'إعادة توليد' : 'Regenerate'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Available Formats */}
