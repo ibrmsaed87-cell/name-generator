@@ -468,9 +468,9 @@ frontend:
 
   - task: "Logo Generator Feature"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/app/logo-generator.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -480,6 +480,9 @@ frontend:
         - working: true
           agent: "testing"
           comment: "Logo generator API calls working correctly after fix - backend logs show successful requests to /api/generate-logo with 200 OK responses. Navigation and UI functionality confirmed."
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE CONFIRMED: Logo generation UI works perfectly (navigation, company name display, style/color selection, generate button enabled), but API calls return 404 errors on frontend while backend logs show 200 OK responses. This indicates a routing/proxy issue between frontend and backend. Backend API tested directly with curl works correctly. User experience: clicking Generate Logo shows no results due to failed API calls."
 
   - task: "Navigation & UI"
     implemented: true
