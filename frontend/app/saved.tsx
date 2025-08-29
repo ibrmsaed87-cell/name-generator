@@ -37,7 +37,7 @@ export default function SavedScreen() {
 
   const loadLanguage = async () => {
     try {
-      const savedLang = await AsyncStorage.getItem('language');
+      const savedLang = await AsyncStorage.getItem('appLanguage');
       if (savedLang) {
         setLanguage(savedLang as 'ar' | 'en');
       }
