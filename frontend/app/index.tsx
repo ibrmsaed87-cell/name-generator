@@ -516,9 +516,19 @@ export default function HomeScreen() {
         {/* Results */}
         {generatedNames.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'الأسماء المولدة:' : 'Generated Names:'}
-            </Text>
+            <View style={styles.resultsHeader}>
+              <Text style={styles.sectionTitle}>
+                {language === 'ar' ? 'الأسماء المولدة:' : 'Generated Names:'}
+              </Text>
+              {detectedLanguage && detectedLanguage !== language && (
+                <View style={styles.languageDetectionBadge}>
+                  <Ionicons name="language-outline" size={16} color="#6366f1" />
+                  <Text style={styles.languageDetectionText}>
+                    {detectedLanguage === 'ar' ? 'عربي' : 'English'}
+                  </Text>
+                </View>
+              )}
+            </View>
             {generatedNames.map((item, index) => (
               <View key={item.id} style={styles.nameCard}>
                 <View style={styles.nameHeader}>
