@@ -230,14 +230,14 @@ export default function HomeScreen() {
   const checkDomain = (name: string) => {
     router.push({
       pathname: '/domain-check',
-      params: { name }
+      params: { name, language }
     });
   };
 
   const generateLogo = (name: string) => {
     router.push({
-      pathname: '/logo-generator',
-      params: { name }
+      pathname: '/logo-generator', 
+      params: { name, language }
     });
   };
 
