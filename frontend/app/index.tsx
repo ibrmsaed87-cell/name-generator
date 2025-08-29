@@ -732,4 +732,21 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
+  logoButton: {
+    backgroundColor: '#6366f1',
+    borderRadius: 8,
+    paddingVertical: 12,
+  },
+  logoButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  demoNote: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: 16,
+    paddingHorizontal: 20,
+    lineHeight: 20,
+  },
 });
