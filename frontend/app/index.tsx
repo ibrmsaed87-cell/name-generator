@@ -32,7 +32,7 @@ interface SavedName {
   is_favorite: boolean;
 }
 
-const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost';
 
 export default function HomeScreen() {
   const router = useRouter();
