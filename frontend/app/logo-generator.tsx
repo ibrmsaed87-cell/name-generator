@@ -44,6 +44,21 @@ export default function LogoGeneratorScreen() {
   const [style, setStyle] = useState('modern');
   const [selectedColors, setSelectedColors] = useState<string[]>(['blue', 'white']);
 
+  useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const savedLang = await AsyncStorage.getItem('appLanguage');
+        if (savedLang) {
+          setLanguage(savedLang as 'ar' | 'en');
+        }
+      } catch (error) {
+        console.error('Error loading language:', error);
+      }
+    };
+
+    loadLanguage();
+  }, []);
+
   const styles_options = [
     { id: 'modern', nameAr: 'عصري', nameEn: 'Modern' },
     { id: 'classic', nameAr: 'كلاسيكي', nameEn: 'Classic' },
