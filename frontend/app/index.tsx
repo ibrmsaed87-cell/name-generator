@@ -95,7 +95,7 @@ export default function HomeScreen() {
     { id: 'geographic', nameAr: 'جغرافي', nameEn: 'Geographic', icon: 'location-outline' },
     { id: 'length_based', nameAr: 'حسب الطول', nameEn: 'Length Based', icon: 'resize-outline' },
     { id: 'personality', nameAr: 'حسب الشخصية', nameEn: 'Personality', icon: 'person-outline' },
-  ];
+  const generationTypes = [
     { id: 'ai', nameAr: 'الذكاء الاصطناعي', nameEn: 'AI Generation', icon: 'bulb-outline' },
     { id: 'sector', nameAr: 'حسب القطاع', nameEn: 'By Sector', icon: 'business-outline' },
     { id: 'abbreviated', nameAr: 'أسماء مختصرة', nameEn: 'Abbreviated', icon: 'text-outline' },
