@@ -383,7 +383,7 @@ export default function HomeScreen() {
         <View style={styles.headerButtons}>
           <TouchableOpacity
             style={styles.languageButton}
-            onPress={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            onPress={() => changeLanguage(language === 'ar' ? 'en' : 'ar')}
           >
             <Text style={styles.languageButtonText}>
               {language === 'ar' ? 'EN' : 'عر'}
