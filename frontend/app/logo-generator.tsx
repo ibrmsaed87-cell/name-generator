@@ -59,7 +59,7 @@ export default function LogoGeneratorScreen() {
     
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/generate-logo`, {
+      const response = await fetch(`${BACKEND_URL}/generate-logo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
