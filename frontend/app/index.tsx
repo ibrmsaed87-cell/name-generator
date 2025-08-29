@@ -18,14 +18,12 @@ import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { 
+  AdUnitIds,
   BannerAd, 
   BannerAdSize, 
-  TestIds,
-  InterstitialAd,
-  RewardedAd,
-  AdEventType,
-  RewardedAdEventType 
-} from 'react-native-google-mobile-ads';
+  showInterstitialAd,
+  showRewardedAd
+} from '../utils/AdManager';
 
 // Types
 interface GeneratedName {
