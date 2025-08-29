@@ -46,7 +46,7 @@ export default function DomainCheckScreen() {
     
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/check-domain`, {
+      const response = await fetch(`/api/check-domain`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
