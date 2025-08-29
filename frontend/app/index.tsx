@@ -130,6 +130,9 @@ export default function HomeScreen() {
         id: `${Date.now()}_${index}`
       })));
       
+      // Store detected language for display
+      setDetectedLanguage(result.detected_input_language);
+      
       // Show language detection info to user if different from UI language
       if (result.detected_input_language !== language) {
         const detectedLangName = result.detected_input_language === 'ar' ? 'العربية' : 'الإنجليزية';
