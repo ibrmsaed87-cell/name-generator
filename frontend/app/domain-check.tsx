@@ -36,6 +36,18 @@ export default function DomainCheckScreen() {
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const savedLang = await AsyncStorage.getItem('appLanguage');
+        if (savedLang) {
+          setLanguage(savedLang as 'ar' | 'en');
+        }
+      } catch (error) {
+        console.error('Error loading language:', error);
+      }
+    };
+
+    loadLanguage();
     if (name) {
       checkDomains();
     }
