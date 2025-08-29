@@ -17,6 +17,13 @@ import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { 
+  BannerAd, 
+  BannerAdSize, 
+  showInterstitialAd,
+  showRewardedAd,
+  AdUnitIds 
+} from '../utils/AdManager';
 
 // Types
 interface GeneratedName {
