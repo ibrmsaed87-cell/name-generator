@@ -496,39 +496,63 @@ const styles = StyleSheet.create({
   resultSection: {
     marginVertical: 20,
   },
-  descriptionCard: {
+  logoResultCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     marginBottom: 20,
   },
-  descriptionText: {
-    fontSize: 16,
-    color: '#374151',
-    lineHeight: 24,
-    marginBottom: 16,
+  logoImageContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+  },
+  logoImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+  },
+  logoInfo: {
+    marginBottom: 20,
+  },
+  logoTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  logoStyle: {
+    fontSize: 14,
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  logoColors: {
+    fontSize: 14,
+    color: '#64748b',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 12,
   },
-  copyButton: {
+  downloadButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#f8fafc',
+    paddingVertical: 12,
+    backgroundColor: '#6366f1',
     borderRadius: 8,
     gap: 8,
   },
-  copyButtonText: {
-    color: '#6366f1',
-    fontSize: 14,
+  downloadButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
     fontWeight: '600',
   },
   regenerateButton: {
@@ -536,44 +560,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     backgroundColor: '#f0fdf4',
     borderRadius: 8,
     gap: 8,
   },
   regenerateButtonText: {
     color: '#10b981',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
-  formatsSection: {
+  errorCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#fecaca',
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  formatsTitle: {
-    fontSize: 16,
+  errorTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: '#ef4444',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
     marginBottom: 12,
   },
-  formatsList: {
+  fallbackDescription: {
+    fontSize: 14,
+    color: '#6366f1',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#f8fafc',
+    borderRadius: 8,
     gap: 8,
   },
-  formatTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 16,
-  },
-  formatText: {
-    fontSize: 12,
+  retryButtonText: {
     color: '#6366f1',
+    fontSize: 14,
     fontWeight: '600',
   },
   infoSection: {
