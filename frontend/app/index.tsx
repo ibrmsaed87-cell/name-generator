@@ -410,6 +410,19 @@ export default function HomeScreen() {
           )}
         </TouchableOpacity>
 
+        {/* Clear Results Button */}
+        {generatedNames.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={() => setGeneratedNames([])}
+          >
+            <Ionicons name="refresh-outline" size={20} color="#6366f1" />
+            <Text style={styles.clearButtonText}>
+              {language === 'ar' ? 'توليد أسماء جديدة' : 'Generate New Names'}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {/* Demo Names for Testing Logo Feature */}
         {generatedNames.length === 0 && (
           <View style={styles.section}>
