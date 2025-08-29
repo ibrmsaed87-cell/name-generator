@@ -242,53 +242,93 @@ export default function LogoGeneratorScreen() {
         {logoResult && !loading && (
           <View style={styles.resultSection}>
             <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'وصف اللوغو المولد:' : 'Generated Logo Description:'}
+              {language === 'ar' ? 'اللوغو المولد:' : 'Generated Logo:'}
             </Text>
             
-            <View style={styles.descriptionCard}>
-              <Text style={styles.descriptionText}>
-                {logoResult.logo_description}
-              </Text>
-              
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={styles.copyButton}
-                  onPress={copyDescription}
-                >
-                  <Ionicons name="copy-outline" size={20} color="#6366f1" />
-                  <Text style={styles.copyButtonText}>
-                    {language === 'ar' ? 'نسخ الوصف' : 'Copy Description'}
-                  </Text>
-                </TouchableOpacity>
+            {logoResult.result.success ? (
+              <View style={styles.logoResultCard}>
+                {/* Logo Image */}
+                {logoResult.result.image_base64 && (
+                  <View style={styles.logoImageContainer}>
+                    <Image 
+                      source={{ uri: logoResult.result.image_base64 }}
+                      style={styles.logoImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
                 
+                {/* Logo Info */}
+                <View style={styles.logoInfo}>
+                  <Text style={styles.logoTitle}>
+                    {logoResult.company_name}
+                  </Text>
+                  <Text style={styles.logoStyle}>
+                    {language === 'ar' ? 'النمط:' : 'Style:'} {logoResult.style}
+                  </Text>
+                  <Text style={styles.logoColors}>
+                    {language === 'ar' ? 'الألوان:' : 'Colors:'} {logoResult.colors.join(', ')}
+                  </Text>
+                </View>
+                
+                {/* Action Buttons */}
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={styles.downloadButton}
+                    onPress={() => {
+                      if (logoResult.result.image_url) {
+                        Linking.openURL(logoResult.result.image_url);
+                      }
+                    }}
+                  >
+                    <Ionicons name="download-outline" size={20} color="#ffffff" />
+                    <Text style={styles.downloadButtonText}>
+                      {language === 'ar' ? 'تحميل' : 'Download'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.regenerateButton}
+                    onPress={() => {
+                      setLogoResult(null);
+                      generateLogo();
+                    }}
+                  >
+                    <Ionicons name="refresh-outline" size={20} color="#10b981" />
+                    <Text style={styles.regenerateButtonText}>
+                      {language === 'ar' ? 'إعادة توليد' : 'Regenerate'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.errorCard}>
+                <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+                <Text style={styles.errorTitle}>
+                  {language === 'ar' ? 'فشل في توليد الصورة' : 'Image Generation Failed'}
+                </Text>
+                <Text style={styles.errorMessage}>
+                  {logoResult.result.error || (language === 'ar' ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred')}
+                </Text>
+                {logoResult.result.fallback_description && (
+                  <Text style={styles.fallbackDescription}>
+                    {logoResult.result.fallback_description}
+                  </Text>
+                )}
                 <TouchableOpacity
-                  style={styles.regenerateButton}
+                  style={styles.retryButton}
                   onPress={() => {
                     setLogoResult(null);
                     generateLogo();
                   }}
                 >
-                  <Ionicons name="refresh-outline" size={20} color="#10b981" />
-                  <Text style={styles.regenerateButtonText}>
-                    {language === 'ar' ? 'إعادة توليد' : 'Regenerate'}
+                  <Ionicons name="refresh-outline" size={20} color="#6366f1" />
+                  <Text style={styles.retryButtonText}>
+                    {language === 'ar' ? 'إعادة المحاولة' : 'Retry'}
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            {/* Available Formats */}
-            <View style={styles.formatsSection}>
-              <Text style={styles.formatsTitle}>
-                {language === 'ar' ? 'صيغ متوفرة:' : 'Available Formats:'}
-              </Text>
-              <View style={styles.formatsList}>
-                {logoResult.download_formats.map((format, index) => (
-                  <View key={index} style={styles.formatTag}>
-                    <Text style={styles.formatText}>{format}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
+            )}
           </View>
         )}
 
