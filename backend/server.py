@@ -417,7 +417,7 @@ async def check_domain(request: DomainCheckRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/generate-logo")
-async def generate_logo(request: LogoGenerationRequest):
+async def generate_logo(request: LogoImageRequest):
     """Generate logo using AI"""
     try:
         chat = LlmChat(
