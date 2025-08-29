@@ -410,6 +410,75 @@ export default function HomeScreen() {
           )}
         </TouchableOpacity>
 
+        {/* Demo Names for Testing Logo Feature */}
+        {generatedNames.length === 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {language === 'ar' ? 'أسماء تجريبية - اختبر ميزة اللوغو:' : 'Demo Names - Test Logo Feature:'}
+            </Text>
+            {[
+              { name: language === 'ar' ? 'تقنية الابتكار' : 'Innovation Tech', id: 'demo1' },
+              { name: language === 'ar' ? 'الرائد الرقمي' : 'Digital Pioneer', id: 'demo2' },
+              { name: language === 'ar' ? 'سمارت سولوشن' : 'Smart Solutions', id: 'demo3' },
+            ].map((item, index) => (
+              <View key={item.id} style={styles.nameCard}>
+                <View style={styles.nameHeader}>
+                  <Text style={styles.nameIndex}>{index + 1}</Text>
+                  <Text style={styles.nameText}>{item.name}</Text>
+                </View>
+                
+                <View style={styles.nameActions}>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => copyToClipboard(item.name)}
+                  >
+                    <Ionicons name="copy-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'نسخ' : 'Copy'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => saveName(item.name)}
+                  >
+                    <Ionicons name="bookmark-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'حفظ' : 'Save'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => checkDomain(item.name)}
+                  >
+                    <Ionicons name="globe-outline" size={20} color="#6366f1" />
+                    <Text style={styles.actionText}>
+                      {language === 'ar' ? 'نطاق' : 'Domain'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.logoButton]}
+                    onPress={() => generateLogo(item.name)}
+                  >
+                    <Ionicons name="image-outline" size={20} color="#ffffff" />
+                    <Text style={[styles.actionText, styles.logoButtonText]}>
+                      {language === 'ar' ? 'لوغو' : 'Logo'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+            <Text style={styles.demoNote}>
+              {language === 'ar' 
+                ? '👆 اضغط على "لوغو" لتجربة ميزة إنشاء اللوغو بالذكاء الاصطناعي'
+                : '👆 Click "Logo" to try the AI logo generation feature'
+              }
+            </Text>
+          </View>
+        )}
+
         {/* Results */}
         {generatedNames.length > 0 && (
           <View style={styles.section}>
