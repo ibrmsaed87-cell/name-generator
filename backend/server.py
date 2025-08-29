@@ -453,6 +453,26 @@ Format the response as a JSON with keys: concept, typography, colors, layout, fo
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/generate-logo-image")
+async def generate_logo_image(request: LogoImageRequest):
+    """Generate actual logo image using AI"""
+    try:
+        result = await generate_logo_image_free(
+            request.company_name,
+            request.style,
+            request.colors
+        )
+        
+        return {
+            "company_name": request.company_name,
+            "style": request.style,
+            "colors": request.colors,
+            "result": result
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/save-name", response_model=SavedName)
 async def save_name(name_data: SavedNameCreate):
     """Save a generated name"""
