@@ -189,6 +189,17 @@ export default function HomeScreen() {
             : `Detected input in ${detectedLangName === 'العربية' ? 'Arabic' : 'English'}, generated names in the same language`
         );
       }
+      
+      // Show interstitial ad occasionally (every 3rd generation)
+      const generationCount = await AsyncStorage.getItem('generationCount') || '0';
+      const count = parseInt(generationCount) + 1;
+      await AsyncStorage.setItem('generationCount', count.toString());
+      
+      if (count % 3 === 0) {
+        setTimeout(() => {
+          showInterstitialAd();
+        }, 1000); // Show after 1 second delay
+      }
     } catch (error) {
       Alert.alert(
         language === 'ar' ? 'خطأ' : 'Error',
