@@ -56,10 +56,64 @@ class GenerateNameRequest(BaseModel):
 class DomainCheckRequest(BaseModel):
     name: str
 
+class LogoImageRequest(BaseModel):
+    company_name: str
+    style: Optional[str] = "modern"
+    colors: Optional[List[str]] = ["blue", "white"]
+
+# Keep the old class for backward compatibility temporarily
 class LogoGenerationRequest(BaseModel):
     company_name: str
     style: Optional[str] = "modern"
     colors: Optional[List[str]] = ["blue", "white"]
+
+async def generate_logo_image_free(company_name: str, style: str, colors: List[str]) -> dict:
+    """Generate logo image using free Pollinations.ai API"""
+    try:
+        # Create detailed prompt for logo generation
+        color_str = ", ".join(colors)
+        
+        # Enhanced prompt for better logo generation
+        if "ar" in company_name or any(ord(char) > 127 for char in company_name):
+            # Arabic company name
+            prompt = f"professional business logo design, company name '{company_name}', {style} style, {color_str} colors, minimalist, vector style, clean background, high quality, svg style, corporate branding"
+        else:
+            # English company name  
+            prompt = f"professional business logo design for '{company_name}', {style} style, {color_str} colors, minimalist, vector style, clean background, high quality, svg style, corporate branding"
+        
+        # Use Pollinations.ai free API (no API key required)
+        # This is a completely free service
+        pollinations_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}?width=512&height=512&model=flux&enhance=true"
+        
+        # Download the generated image
+        response = requests.get(pollinations_url, timeout=30)
+        
+        if response.status_code == 200:
+            # Convert image to base64 for React Native compatibility
+            image_base64 = base64.b64encode(response.content).decode('utf-8')
+            image_data_url = f"data:image/png;base64,{image_base64}"
+            
+            return {
+                "success": True,
+                "image_url": pollinations_url,
+                "image_base64": image_data_url,
+                "prompt": prompt
+            }
+        else:
+            # Fallback: generate text-based logo description
+            return {
+                "success": False,
+                "error": f"Image generation failed with status {response.status_code}",
+                "fallback_description": f"لوغو احترافي لشركة {company_name} بأسلوب {style} مع ألوان {', '.join(colors)}"
+            }
+            
+    except Exception as e:
+        print(f"Logo image generation error: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "fallback_description": f"لوغو احترافي لشركة {company_name}"
+        }
 
 # Name generation data
 SECTORS_AR = [
