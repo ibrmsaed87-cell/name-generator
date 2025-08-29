@@ -37,7 +37,7 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function LogoGeneratorScreen() {
   const router = useRouter();
-  const { name } = useLocalSearchParams<{ name: string }>();
+  const { name, language: passedLanguage } = useLocalSearchParams<{ name: string; language: string }>();
   const [loading, setLoading] = useState(false);
   const [logoResult, setLogoResult] = useState<LogoGenerationResponse | null>(null);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
@@ -47,9 +47,15 @@ export default function LogoGeneratorScreen() {
   useEffect(() => {
     const loadLanguage = async () => {
       try {
-        const savedLang = await AsyncStorage.getItem('appLanguage');
-        if (savedLang) {
-          setLanguage(savedLang as 'ar' | 'en');
+        // First check if language was passed as parameter
+        if (passedLanguage) {
+          setLanguage(passedLanguage as 'ar' | 'en');
+        } else {
+          // Otherwise load from AsyncStorage
+          const savedLang = await AsyncStorage.getItem('appLanguage');
+          if (savedLang) {
+            setLanguage(savedLang as 'ar' | 'en');
+          }
         }
       } catch (error) {
         console.error('Error loading language:', error);
@@ -57,7 +63,7 @@ export default function LogoGeneratorScreen() {
     };
 
     loadLanguage();
-  }, []);
+  }, [passedLanguage]);
 
   const styles_options = [
     { id: 'modern', nameAr: 'عصري', nameEn: 'Modern' },
