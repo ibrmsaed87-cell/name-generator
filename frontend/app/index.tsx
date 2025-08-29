@@ -104,7 +104,7 @@ export default function HomeScreen() {
         location: formData.location || undefined,
       };
 
-      const response = await fetch(`${BACKEND_URL}/generate-names`, {
+      const response = await fetch(`/api/generate-names`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
