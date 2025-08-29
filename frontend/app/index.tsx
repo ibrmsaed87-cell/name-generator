@@ -435,7 +435,13 @@ export default function HomeScreen() {
         {generatedNames.length > 0 && (
           <TouchableOpacity
             style={styles.clearButton}
-            onPress={() => setGeneratedNames([])}
+            onPress={() => {
+              setGeneratedNames([]);
+              setDetectedLanguage(null);
+              // Automatically generate new names with same settings
+              generateNames();
+            }}
+            disabled={loading}
           >
             <Ionicons name="refresh-outline" size={20} color="#6366f1" />
             <Text style={styles.clearButtonText}>
