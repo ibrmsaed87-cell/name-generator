@@ -78,6 +78,17 @@ export default function HomeScreen() {
       setLanguage(newLanguage); // Still change the language even if saving fails
     }
   };
+
+  const generationTypes = [
+    { id: 'ai', nameAr: 'الذكاء الاصطناعي', nameEn: 'AI Generation', icon: 'bulb-outline' },
+    { id: 'sector', nameAr: 'حسب القطاع', nameEn: 'By Sector', icon: 'business-outline' },
+    { id: 'abbreviated', nameAr: 'أسماء مختصرة', nameEn: 'Abbreviated', icon: 'text-outline' },
+    { id: 'compound', nameAr: 'تركيبي', nameEn: 'Compound', icon: 'layers-outline' },
+    { id: 'smart_random', nameAr: 'عشوائي ذكي', nameEn: 'Smart Random', icon: 'shuffle-outline' },
+    { id: 'geographic', nameAr: 'جغرافي', nameEn: 'Geographic', icon: 'location-outline' },
+    { id: 'length_based', nameAr: 'حسب الطول', nameEn: 'Length Based', icon: 'resize-outline' },
+    { id: 'personality', nameAr: 'حسب الشخصية', nameEn: 'Personality', icon: 'person-outline' },
+  ];
     { id: 'ai', nameAr: 'الذكاء الاصطناعي', nameEn: 'AI Generation', icon: 'bulb-outline' },
     { id: 'sector', nameAr: 'حسب القطاع', nameEn: 'By Sector', icon: 'business-outline' },
     { id: 'abbreviated', nameAr: 'أسماء مختصرة', nameEn: 'Abbreviated', icon: 'text-outline' },
