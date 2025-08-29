@@ -324,27 +324,33 @@ backend:
 frontend:
   - task: "Name Generation - AI-powered"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/app/index.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for comprehensive testing of AI-powered name generation with keywords input"
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE FOUND: API connection problem - frontend making requests to /api/api/generate-names (double /api) instead of /api/generate-names, causing 404 errors. Fixed by updating frontend code to use direct /api paths, but issue persists due to caching/propagation. Some requests now working correctly."
 
   - task: "Name Generation - Sector-based"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/app/index.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for testing sector-based name generation with different business sectors"
+        - working: false
+          agent: "testing"
+          comment: "Same API connection issue as AI generation - requests going to wrong URL path causing 404 errors. Fix applied but needs full propagation."
 
   - task: "Name Generation - Abbreviated"
     implemented: true
@@ -420,15 +426,18 @@ frontend:
 
   - task: "Language Support"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/app/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for testing Arabic/English language switching and RTL support"
+        - working: true
+          agent: "testing"
+          comment: "Language switching functionality working perfectly - tested switching between Arabic and English interfaces, UI updates correctly including text direction and labels."
 
   - task: "Saved Names Functionality"
     implemented: true
@@ -444,39 +453,48 @@ frontend:
 
   - task: "Domain Check Feature"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/app/domain-check.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for testing domain availability checking and registration links"
+        - working: true
+          agent: "testing"
+          comment: "Domain check API calls working correctly after fix - backend logs show successful requests to /api/check-domain with 200 OK responses."
 
   - task: "Logo Generator Feature"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/app/logo-generator.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for testing AI logo description generation with style and color selection"
+        - working: true
+          agent: "testing"
+          comment: "Logo generator API calls working correctly after fix - backend logs show successful requests to /api/generate-logo with 200 OK responses. Navigation and UI functionality confirmed."
 
   - task: "Navigation & UI"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/app/"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Ready for testing navigation between screens and UI responsiveness"
+        - working: true
+          agent: "testing"
+          comment: "Navigation working correctly - tested navigation to logo generator and back, mobile responsive design confirmed, all UI elements properly sized for mobile viewport (390x844)."
 
   - task: "Form Interactions"
     implemented: true
