@@ -324,6 +324,8 @@ async def generate_names(request: GenerateNameRequest):
         
         return {"names": names, "type": request.type, "language": request.language}
     
+    except HTTPException:
+        raise  # Re-raise HTTPExceptions as-is
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
