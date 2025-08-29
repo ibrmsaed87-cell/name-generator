@@ -642,6 +642,26 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     marginBottom: 15,
   },
+  resultsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  languageDetectionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f9ff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  languageDetectionText: {
+    fontSize: 12,
+    color: '#6366f1',
+    fontWeight: '600',
+  },
   typesContainer: {
     flexDirection: 'row',
     gap: 12,
