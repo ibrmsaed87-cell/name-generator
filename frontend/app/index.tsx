@@ -82,16 +82,8 @@ export default function HomeScreen() {
       await AsyncStorage.setItem('appLanguage', newLanguage);
     } catch (error) {
       console.error('Error saving language preference:', error);
-      setLanguage(newLanguage); // Still change the language even if saving fails
+      setLanguage(newLanguage);
     }
-  };
-
-  const generationTypes = [
-    { id: 'ai', nameAr: 'الذكاء الاصطناعي', nameEn: 'AI Generation', icon: 'bulb-outline' },
-    { id: 'sector', nameAr: 'حسب القطاع', nameEn: 'By Sector', icon: 'business-outline' },
-    { id: 'abbreviated', nameAr: 'أسماء مختصرة', nameEn: 'Abbreviated', icon: 'text-outline' },
-    { id: 'compound', nameAr: 'تركيبي', nameEn: 'Compound', icon: 'layers-outline' },
-    { id: 'smart_random', nameAr: 'عشوائي ذكي', nameEn: 'Smart Random', icon: 'shuffle-outline' },
   };
 
   const generationTypes = [
@@ -156,30 +148,21 @@ export default function HomeScreen() {
         body: JSON.stringify(requestData),
       });
 
-      console.log('API Response status:', response.status);
-      console.log('Backend URL:', BACKEND_URL);
-
       if (!response.ok) {
         throw new Error('Failed to generate names');
       }
 
       const result = await response.json();
-      console.log('API Response status:', response.status);
-      console.log('Backend URL:', BACKEND_URL);
-      console.log('Result:', result);
       
       setGeneratedNames(result.names.map((name: string, index: number) => ({
         name,
         id: `${Date.now()}_${index}`
       })));
       
-      // Store detected language for display
       setDetectedLanguage(result.detected_input_language);
       
-      // Show language detection info to user if different from UI language
       if (result.detected_input_language !== language) {
         const detectedLangName = result.detected_input_language === 'ar' ? 'العربية' : 'الإنجليزية';
-        const uiLangName = language === 'ar' ? 'العربية' : 'الإنجليزية';
         
         Alert.alert(
           language === 'ar' ? 'كشف اللغة الذكي' : 'Smart Language Detection',
@@ -189,7 +172,7 @@ export default function HomeScreen() {
         );
       }
       
-      // Show interstitial ad occasionally (every 3rd generation)
+      // Show interstitial ad occasionally
       const generationCount = await AsyncStorage.getItem('generationCount') || '0';
       const count = parseInt(generationCount) + 1;
       await AsyncStorage.setItem('generationCount', count.toString());
@@ -197,7 +180,7 @@ export default function HomeScreen() {
       if (count % 3 === 0) {
         setTimeout(() => {
           showInterstitialAd();
-        }, 1000); // Show after 1 second delay
+        }, 1000);
       }
     } catch (error) {
       Alert.alert(
@@ -386,7 +369,6 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       
-      {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>
@@ -417,7 +399,6 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Generation Types */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             {language === 'ar' ? 'نوع التوليد:' : 'Generation Type:'}
@@ -450,10 +431,8 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Form */}
         {renderForm()}
 
-        {/* Count Input */}
         <View style={styles.formSection}>
           <Text style={styles.formLabel}>
             {language === 'ar' ? 'عدد الأسماء:' : 'Number of Names:'}
@@ -467,7 +446,6 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Generate Button */}
         <TouchableOpacity
           style={[styles.generateButton, loading && styles.disabledButton]}
           onPress={generateNames}
@@ -485,7 +463,6 @@ export default function HomeScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Clear Results Button */}
         {generatedNames.length > 0 && (
           <TouchableOpacity
             style={[styles.clearButton, loading && styles.clearButtonDisabled]}
@@ -493,7 +470,6 @@ export default function HomeScreen() {
               if (!loading) {
                 setGeneratedNames([]);
                 setDetectedLanguage(null);
-                // Automatically generate new names with same settings
                 generateNames();
               }
             }}
@@ -513,11 +489,11 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Demo Names for Testing Logo Feature */}
+        {/* Demo Names for Testing */}
         {generatedNames.length === 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'أسماء تجريبية - اختبر ميزة اللوغو:' : 'Demo Names - Test Logo Feature:'}
+              {language === 'ar' ? 'أسماء تجريبية - اختبر الميزات:' : 'Demo Names - Test Features:'}
             </Text>
             {[
               { name: language === 'ar' ? 'تقنية الابتكار' : 'Innovation Tech', id: 'demo1' },
@@ -575,14 +551,13 @@ export default function HomeScreen() {
             ))}
             <Text style={styles.demoNote}>
               {language === 'ar' 
-                ? '👆 اضغط على "لوغو" لتجربة ميزة إنشاء اللوغو بالذكاء الاصطناعي'
-                : '👆 Click "Logo" to try the AI logo generation feature'
+                ? '👆 اضغط على الأزرار لتجربة جميع الميزات'
+                : '👆 Click buttons to test all features'
               }
             </Text>
           </View>
         )}
 
-        {/* Results */}
         {generatedNames.length > 0 && (
           <View style={styles.section}>
             <View style={styles.resultsHeader}>
@@ -637,11 +612,11 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                   
                   <TouchableOpacity
-                    style={styles.actionButton}
+                    style={[styles.actionButton, styles.logoButton]}
                     onPress={() => generateLogo(item.name)}
                   >
-                    <Ionicons name="image-outline" size={20} color="#6366f1" />
-                    <Text style={styles.actionText}>
+                    <Ionicons name="image-outline" size={20} color="#ffffff" />
+                    <Text style={[styles.actionText, styles.logoButtonText]}>
                       {language === 'ar' ? 'لوغو' : 'Logo'}
                     </Text>
                   </TouchableOpacity>
@@ -650,8 +625,7 @@ export default function HomeScreen() {
             ))}
           </View>
         )}
-        
-        {/* Rewarded Ad Button */}
+
         <TouchableOpacity
           style={styles.rewardedAdButton}
           onPress={async () => {
@@ -663,7 +637,6 @@ export default function HomeScreen() {
                   ? 'شكراً لك! تم منحك 3 توليدات إضافية مجانية' 
                   : 'Thank you! You earned 3 additional free generations'
               );
-              // Add bonus generations logic here
               setFormData({...formData, count: String(Math.min(parseInt(formData.count) + 3, 10))});
             }
           }}
@@ -675,7 +648,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </ScrollView>
       
-      {/* Banner Ad at Bottom */}
       <View style={styles.bannerAdContainer}>
         <BannerAd
           unitId={AdUnitIds.BANNER}
@@ -878,30 +850,6 @@ const styles = StyleSheet.create({
   clearButtonTextDisabled: {
     color: '#94a3b8',
   },
-  rewardedAdButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f59e0b',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginVertical: 10,
-    gap: 8,
-  },
-  rewardedAdButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    flex: 1,
-  },
-  bannerAdContainer: {
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-  },
   nameCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -965,5 +913,29 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 20,
     lineHeight: 20,
+  },
+  rewardedAdButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f59e0b',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginVertical: 10,
+    gap: 8,
+  },
+  rewardedAdButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    flex: 1,
+  },
+  bannerAdContainer: {
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
   },
 });
