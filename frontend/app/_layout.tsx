@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
-import mobileAds from 'react-native-google-mobile-ads';
-import { showAppOpenAd } from '../utils/AdManager';
 
 export default function RootLayout() {
   useEffect(() => {
