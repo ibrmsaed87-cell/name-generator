@@ -66,7 +66,7 @@ export default function LogoGeneratorScreen() {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/generate-logo`, {
+      const response = await fetch(`/api/generate-logo-image`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,25 +85,7 @@ export default function LogoGeneratorScreen() {
       const result = await response.json();
       console.log('Logo API response:', result);
       
-      // Parse JSON if it's inside the description
-      let description = result.logo_description;
-      try {
-        if (description.includes('```json')) {
-          // Extract JSON from markdown code block
-          const jsonMatch = description.match(/```json\n([\s\S]*?)\n```/);
-          if (jsonMatch) {
-            const jsonData = JSON.parse(jsonMatch[1]);
-            description = `${jsonData.concept}\n\nالطباعة: ${jsonData.typography}\n\nالألوان: الأزرق الأساسي والأبيض الثانوي\n\nالتخطيط: ${jsonData.layout}`;
-          }
-        }
-      } catch (e) {
-        console.log('JSON parsing failed, using original description');
-      }
-      
-      setLogoResult({
-        ...result,
-        logo_description: description
-      });
+      setLogoResult(result);
     } catch (error) {
       Alert.alert(
         language === 'ar' ? 'خطأ' : 'Error',
