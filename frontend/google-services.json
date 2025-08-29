@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414240738810",
+    "project_id": "generator-33909",
+    "storage_bucket": "generator-33909.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414240738810:android:dd36d46f92e2706d3ee843",
+        "android_client_info": {
+          "package_name": "com.generator.spinel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdKxspff76WIDdr1wZk4Ru1fTq1cP3wUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

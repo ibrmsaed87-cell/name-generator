@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,10 +6,14 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
-
+import random
+import requests
+import json
+import re
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,32 +29,407 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-
-# Define Models
-class StatusCheck(BaseModel):
+# Models
+class SavedName(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
+    name: str
+    category: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+    is_favorite: bool = False
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class SavedNameCreate(BaseModel):
+    name: str
+    category: str
 
-# Add your routes to the router instead of directly to app
+class GenerateNameRequest(BaseModel):
+    type: str  # ai, sector, abbreviated, compound, smart_random, geographic, length_based, personality
+    language: str  # ar, en
+    sector: Optional[str] = None
+    length: Optional[int] = None
+    personality: Optional[str] = None
+    location: Optional[str] = None
+    keywords: Optional[List[str]] = None
+    count: Optional[int] = 5
+
+class DomainCheckRequest(BaseModel):
+    name: str
+
+class LogoGenerationRequest(BaseModel):
+    company_name: str
+    style: Optional[str] = "modern"
+    colors: Optional[List[str]] = ["blue", "white"]
+
+# Name generation data
+SECTORS_AR = [
+    "التكنولوجيا", "التجارة الإلكترونية", "الصحة", "التعليم", "العقارات",
+    "السياحة", "المطاعم", "الأزياء", "التمويل", "الاستشارات",
+    "البناء", "النقل", "الطاقة", "الإعلام", "الرياضة"
+]
+
+SECTORS_EN = [
+    "Technology", "E-commerce", "Healthcare", "Education", "Real Estate",
+    "Tourism", "Restaurant", "Fashion", "Finance", "Consulting",
+    "Construction", "Transportation", "Energy", "Media", "Sports"
+]
+
+PERSONALITY_TRAITS_AR = [
+    "قوي", "مبدع", "موثوق", "سريع", "ذكي", "عصري", "أنيق", "محترف",
+    "دقيق", "مبتكر", "شامل", "متطور", "فعال", "متميز", "رائد"
+]
+
+PERSONALITY_TRAITS_EN = [
+    "Strong", "Creative", "Reliable", "Fast", "Smart", "Modern", "Elegant", "Professional",
+    "Precise", "Innovative", "Comprehensive", "Advanced", "Efficient", "Distinguished", "Pioneer"
+]
+
+PREFIXES_AR = ["الـ", "نور", "دار", "بيت", "مؤسسة", "شركة", "مجموعة", "مركز"]
+SUFFIXES_AR = ["تك", "برو", "ماكس", "بلس", "سولوشن", "سيستم", "لاب", "ورك"]
+
+PREFIXES_EN = ["Pro", "Smart", "Digital", "Global", "Prime", "Elite", "Ultra", "Neo"]
+SUFFIXES_EN = ["Tech", "Pro", "Max", "Plus", "Solutions", "Systems", "Lab", "Works"]
+
+LOCATIONS_AR = [
+    "الرياض", "جدة", "الدمام", "مكة", "المدينة", "الخليج", "العربية", "الشرق",
+    "الغرب", "الشمال", "الجنوب", "الوسط"
+]
+
+LOCATIONS_EN = [
+    "Riyadh", "Jeddah", "Dammam", "Mecca", "Medina", "Gulf", "Arabia", "East",
+    "West", "North", "South", "Central"
+]
+
+class NameGenerator:
+    def __init__(self):
+        self.llm_key = os.environ.get('EMERGENT_LLM_KEY')
+        
+    async def generate_ai_names(self, language: str, sector: Optional[str] = None, keywords: Optional[List[str]] = None, count: int = 5) -> List[str]:
+        """Generate names using AI"""
+        try:
+            chat = LlmChat(
+                api_key=self.llm_key,
+                session_id=f"name_gen_{uuid.uuid4()}",
+                system_message="You are a creative business name generator. Generate only the names requested, no explanations."
+            ).with_model("openai", "gpt-4o-mini")
+            
+            if language == "ar":
+                prompt = f"أنشئ {count} أسماء شركات إبداعية باللغة العربية"
+                if sector:
+                    prompt += f" في قطاع {sector}"
+                if keywords:
+                    prompt += f" تتضمن كلمات: {', '.join(keywords)}"
+                prompt += ". اكتب الأسماء فقط، كل اسم في سطر منفصل، بدون ترقيم أو رموز."
+            else:
+                prompt = f"Generate {count} creative company names in English"
+                if sector:
+                    prompt += f" for {sector} sector"
+                if keywords:
+                    prompt += f" incorporating: {', '.join(keywords)}"
+                prompt += ". Write only the names, each on a new line, no numbering or symbols."
+            
+            user_message = UserMessage(text=prompt)
+            response = await chat.send_message(user_message)
+            
+            # Extract names from response
+            names = [name.strip() for name in response.split('\n') if name.strip()]
+            return names[:count]
+        except Exception as e:
+            print(f"AI generation error: {e}")
+            return self._fallback_names(language, count)
+    
+    def generate_sector_names(self, language: str, sector: str, count: int = 5) -> List[str]:
+        """Generate names based on sector"""
+        names = []
+        prefixes = PREFIXES_AR if language == "ar" else PREFIXES_EN
+        suffixes = SUFFIXES_AR if language == "ar" else SUFFIXES_EN
+        
+        for _ in range(count):
+            if language == "ar":
+                name = f"{random.choice(prefixes)}{sector} {random.choice(suffixes)}"
+            else:
+                name = f"{sector} {random.choice(suffixes)}"
+            names.append(name)
+        
+        return names
+    
+    def generate_abbreviated_names(self, language: str, keywords: Optional[List[str]] = None, count: int = 5) -> List[str]:
+        """Generate abbreviated names"""
+        names = []
+        
+        if keywords and len(keywords) >= 2:
+            for _ in range(count):
+                # Take first letters of keywords
+                abbrev = "".join([word[0].upper() for word in keywords[:3]])
+                if language == "ar":
+                    name = f"شركة {abbrev}"
+                else:
+                    name = f"{abbrev} Corp"
+                names.append(name)
+        else:
+            # Default abbreviations
+            default_abbrevs = ["ABC", "XYZ", "PQR", "MNO", "DEF"] if language == "en" else ["أ ب ج", "س ص ض", "ق ك ل", "م ن ه", "ت ث ج"]
+            for abbrev in default_abbrevs[:count]:
+                if language == "ar":
+                    name = f"مجموعة {abbrev}"
+                else:
+                    name = f"{abbrev} Group"
+                names.append(name)
+        
+        return names
+    
+    def generate_compound_names(self, language: str, count: int = 5) -> List[str]:
+        """Generate compound names"""
+        names = []
+        prefixes = PREFIXES_AR if language == "ar" else PREFIXES_EN
+        suffixes = SUFFIXES_AR if language == "ar" else SUFFIXES_EN
+        
+        for _ in range(count):
+            name = f"{random.choice(prefixes)}{random.choice(suffixes)}"
+            names.append(name)
+        
+        return names
+    
+    def generate_smart_random_names(self, language: str, count: int = 5) -> List[str]:
+        """Generate smart random names"""
+        names = []
+        vowels = "اeiou" if language == "ar" else "aeiou"
+        consonants = "بتثجحخدذرزسشصضطظعغفقكلمنهوي" if language == "ar" else "bcdfghjklmnpqrstvwxyz"
+        
+        for _ in range(count):
+            length = random.randint(5, 8)
+            name = ""
+            for i in range(length):
+                if i % 2 == 0:
+                    name += random.choice(consonants)
+                else:
+                    name += random.choice(vowels)
+            
+            if language == "ar":
+                name = f"شركة {name.capitalize()}"
+            else:
+                name = name.capitalize()
+                
+            names.append(name)
+        
+        return names
+    
+    def generate_geographic_names(self, language: str, location: Optional[str] = None, count: int = 5) -> List[str]:
+        """Generate geographic names"""
+        names = []
+        locations = LOCATIONS_AR if language == "ar" else LOCATIONS_EN
+        
+        if location:
+            locations = [location]
+        
+        for _ in range(count):
+            loc = random.choice(locations)
+            suffixes = SUFFIXES_AR if language == "ar" else SUFFIXES_EN
+            
+            if language == "ar":
+                name = f"{loc} {random.choice(suffixes)}"
+            else:
+                name = f"{loc} {random.choice(suffixes)}"
+            
+            names.append(name)
+        
+        return names
+    
+    def generate_length_based_names(self, language: str, length: int = 6, count: int = 5) -> List[str]:
+        """Generate names based on specific length"""
+        names = []
+        
+        for _ in range(count):
+            if language == "ar":
+                # Arabic name generation with specific length
+                chars = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي"
+                name = "".join(random.choice(chars) for _ in range(min(length, 8)))
+                name = f"مؤسسة {name}"
+            else:
+                # English name generation
+                chars = "abcdefghijklmnopqrstuvwxyz"
+                name = "".join(random.choice(chars) for _ in range(length))
+                name = name.capitalize()
+            
+            names.append(name)
+        
+        return names
+    
+    def generate_personality_names(self, language: str, personality: str, count: int = 5) -> List[str]:
+        """Generate names based on personality"""
+        names = []
+        traits = PERSONALITY_TRAITS_AR if language == "ar" else PERSONALITY_TRAITS_EN
+        
+        if personality not in traits:
+            personality = random.choice(traits)
+        
+        for _ in range(count):
+            if language == "ar":
+                name = f"{personality} {random.choice(['تك', 'برو', 'سولوشن'])}"
+            else:
+                name = f"{personality} {random.choice(['Tech', 'Pro', 'Solutions'])}"
+            
+            names.append(name)
+        
+        return names
+    
+    def _fallback_names(self, language: str, count: int) -> List[str]:
+        """Fallback names when AI fails"""
+        if language == "ar":
+            fallback = ["الرائد تك", "النجمة برو", "الإبداع سولوشن", "التميز جروب", "الابتكار لاب"]
+        else:
+            fallback = ["Pioneer Tech", "Star Pro", "Creative Solutions", "Excellence Group", "Innovation Lab"]
+        
+        return fallback[:count]
+
+# Initialize name generator
+name_generator = NameGenerator()
+
+# Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Spinel Name Generator API"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
+@api_router.post("/generate-names")
+async def generate_names(request: GenerateNameRequest):
+    """Generate company names based on criteria"""
+    try:
+        names = []
+        
+        if request.type == "ai":
+            names = await name_generator.generate_ai_names(
+                request.language, request.sector, request.keywords, request.count
+            )
+        elif request.type == "sector":
+            if not request.sector:
+                raise HTTPException(status_code=400, detail="Sector is required for sector-based generation")
+            names = name_generator.generate_sector_names(request.language, request.sector, request.count)
+        elif request.type == "abbreviated":
+            names = name_generator.generate_abbreviated_names(request.language, request.keywords, request.count)
+        elif request.type == "compound":
+            names = name_generator.generate_compound_names(request.language, request.count)
+        elif request.type == "smart_random":
+            names = name_generator.generate_smart_random_names(request.language, request.count)
+        elif request.type == "geographic":
+            names = name_generator.generate_geographic_names(request.language, request.location, request.count)
+        elif request.type == "length_based":
+            if not request.length:
+                request.length = 6
+            names = name_generator.generate_length_based_names(request.language, request.length, request.count)
+        elif request.type == "personality":
+            if not request.personality:
+                traits = PERSONALITY_TRAITS_AR if request.language == "ar" else PERSONALITY_TRAITS_EN
+                request.personality = random.choice(traits)
+            names = name_generator.generate_personality_names(request.language, request.personality, request.count)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid generation type")
+        
+        return {"names": names, "type": request.type, "language": request.language}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+@api_router.post("/check-domain")
+async def check_domain(request: DomainCheckRequest):
+    """Check domain availability"""
+    try:
+        domain_name = request.name.lower().replace(" ", "").replace("شركة", "").replace("مؤسسة", "").strip()
+        
+        # Check multiple TLDs
+        tlds = [".com", ".net", ".org", ".co", ".io", ".sa", ".ae"]
+        results = []
+        
+        for tld in tlds:
+            full_domain = f"{domain_name}{tld}"
+            try:
+                # Simple DNS lookup to check if domain exists
+                import socket
+                socket.gethostbyname(full_domain)
+                available = False
+            except socket.gaierror:
+                available = True
+            
+            results.append({
+                "domain": full_domain,
+                "available": available,
+                "price": "10-50 USD/year" if available else None
+            })
+        
+        return {"domain_name": domain_name, "results": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/generate-logo")
+async def generate_logo(request: LogoGenerationRequest):
+    """Generate logo using AI"""
+    try:
+        chat = LlmChat(
+            api_key=os.environ.get('EMERGENT_LLM_KEY'),
+            session_id=f"logo_gen_{uuid.uuid4()}",
+            system_message="You are a creative logo design assistant. Provide detailed logo descriptions."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        prompt = f"""Create a detailed description for a logo design for company: {request.company_name}
+Style: {request.style}
+Colors: {', '.join(request.colors)}
+
+Provide a detailed description including:
+1. Logo concept and symbolism
+2. Typography suggestions
+3. Color scheme details
+4. Layout and composition
+5. Suitable file formats
+
+Format the response as a JSON with keys: concept, typography, colors, layout, formats"""
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        # For now, return the description. In a real app, you'd integrate with image generation APIs
+        return {
+            "company_name": request.company_name,
+            "logo_description": response,
+            "preview_url": None,  # Would be actual logo URL in production
+            "download_formats": ["PNG", "SVG", "JPG", "AI"]
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/save-name", response_model=SavedName)
+async def save_name(name_data: SavedNameCreate):
+    """Save a generated name"""
+    saved_name = SavedName(**name_data.dict())
+    await db.saved_names.insert_one(saved_name.dict())
+    return saved_name
+
+@api_router.get("/saved-names", response_model=List[SavedName])
+async def get_saved_names():
+    """Get all saved names"""
+    names = await db.saved_names.find().to_list(1000)
+    return [SavedName(**name) for name in names]
+
+@api_router.delete("/saved-names/{name_id}")
+async def delete_saved_name(name_id: str):
+    """Delete a saved name"""
+    result = await db.saved_names.delete_one({"id": name_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Name not found")
+    return {"message": "Name deleted successfully"}
+
+@api_router.put("/saved-names/{name_id}/favorite")
+async def toggle_favorite(name_id: str):
+    """Toggle favorite status of a saved name"""
+    name = await db.saved_names.find_one({"id": name_id})
+    if not name:
+        raise HTTPException(status_code=404, detail="Name not found")
+    
+    new_favorite_status = not name.get("is_favorite", False)
+    await db.saved_names.update_one(
+        {"id": name_id},
+        {"$set": {"is_favorite": new_favorite_status}}
+    )
+    
+    return {"message": "Favorite status updated", "is_favorite": new_favorite_status}
 
 # Include the router in the main app
 app.include_router(api_router)
