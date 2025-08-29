@@ -647,8 +647,17 @@ const styles = StyleSheet.create({
     borderTopColor: '#f1f5f9',
   },
   actionButton: {
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
+    minWidth: 60,
+  },
+  actionText: {
+    fontSize: 10,
+    color: '#6366f1',
+    fontWeight: '600',
+    marginTop: 2,
+    textAlign: 'center',
   },
 });
