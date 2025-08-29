@@ -120,10 +120,27 @@ export default function HomeScreen() {
       }
 
       const result = await response.json();
+      console.log('API Response status:', response.status);
+      console.log('Backend URL:', BACKEND_URL);
+      console.log('Result:', result);
+      
       setGeneratedNames(result.names.map((name: string, index: number) => ({
         name,
         id: `${Date.now()}_${index}`
       })));
+      
+      // Show language detection info to user if different from UI language
+      if (result.detected_input_language !== language) {
+        const detectedLangName = result.detected_input_language === 'ar' ? 'العربية' : 'الإنجليزية';
+        const uiLangName = language === 'ar' ? 'العربية' : 'الإنجليزية';
+        
+        Alert.alert(
+          language === 'ar' ? 'كشف اللغة الذكي' : 'Smart Language Detection',
+          language === 'ar' 
+            ? `تم كشف أن النصوص المدخلة باللغة ${detectedLangName}، لذا تم توليد الأسماء بنفس اللغة`
+            : `Detected input in ${detectedLangName === 'العربية' ? 'Arabic' : 'English'}, generated names in the same language`
+        );
+      }
     } catch (error) {
       Alert.alert(
         language === 'ar' ? 'خطأ' : 'Error',
