@@ -776,10 +776,17 @@ const styles = StyleSheet.create({
     borderColor: '#6366f1',
     gap: 8,
   },
+  clearButtonDisabled: {
+    opacity: 0.6,
+    borderColor: '#94a3b8',
+  },
   clearButtonText: {
     color: '#6366f1',
     fontSize: 16,
     fontWeight: '600',
+  },
+  clearButtonTextDisabled: {
+    color: '#94a3b8',
   },
   nameCard: {
     backgroundColor: '#ffffff',
