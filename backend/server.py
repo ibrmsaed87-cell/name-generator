@@ -368,39 +368,63 @@ async def root():
 
 @api_router.post("/generate-names")
 async def generate_names(request: GenerateNameRequest):
-    """Generate company names based on criteria"""
+    """Generate company names based on criteria with smart language detection"""
     try:
+        # Smart language detection based on input
+        detected_language = request.language  # Default from UI
+        
+        # Detect language from user inputs
+        input_text = ""
+        if request.keywords:
+            input_text += " ".join(request.keywords)
+        if request.sector:
+            input_text += " " + request.sector
+        if request.personality:
+            input_text += " " + request.personality
+        if request.location:
+            input_text += " " + request.location
+        
+        # If user provided input text, detect its language
+        if input_text.strip():
+            detected_language = detect_language(input_text.strip())
+        
         names = []
         
         if request.type == "ai":
             names = await name_generator.generate_ai_names(
-                request.language, request.sector, request.keywords, request.count
+                detected_language, request.sector, request.keywords, request.count
             )
         elif request.type == "sector":
             if not request.sector:
                 raise HTTPException(status_code=400, detail="Sector is required for sector-based generation")
-            names = name_generator.generate_sector_names(request.language, request.sector, request.count)
+            names = name_generator.generate_sector_names(detected_language, request.sector, request.count)
         elif request.type == "abbreviated":
-            names = name_generator.generate_abbreviated_names(request.language, request.keywords, request.count)
+            names = name_generator.generate_abbreviated_names(detected_language, request.keywords, request.count)
         elif request.type == "compound":
-            names = name_generator.generate_compound_names(request.language, request.count)
+            names = name_generator.generate_compound_names(detected_language, request.count)
         elif request.type == "smart_random":
-            names = name_generator.generate_smart_random_names(request.language, request.count)
+            names = name_generator.generate_smart_random_names(detected_language, request.count)
         elif request.type == "geographic":
-            names = name_generator.generate_geographic_names(request.language, request.location, request.count)
+            names = name_generator.generate_geographic_names(detected_language, request.location, request.count)
         elif request.type == "length_based":
             if not request.length:
                 request.length = 6
-            names = name_generator.generate_length_based_names(request.language, request.length, request.count)
+            names = name_generator.generate_length_based_names(detected_language, request.length, request.count)
         elif request.type == "personality":
             if not request.personality:
-                traits = PERSONALITY_TRAITS_AR if request.language == "ar" else PERSONALITY_TRAITS_EN
+                traits = PERSONALITY_TRAITS_AR if detected_language == "ar" else PERSONALITY_TRAITS_EN
                 request.personality = random.choice(traits)
-            names = name_generator.generate_personality_names(request.language, request.personality, request.count)
+            names = name_generator.generate_personality_names(detected_language, request.personality, request.count)
         else:
             raise HTTPException(status_code=400, detail="Invalid generation type")
         
-        return {"names": names, "type": request.type, "language": request.language}
+        return {
+            "names": names, 
+            "type": request.type, 
+            "language": detected_language,
+            "ui_language": request.language,  # Original UI language for reference
+            "detected_input_language": detected_language  # The detected language from input
+        }
     
     except HTTPException:
         raise  # Re-raise HTTPExceptions as-is
