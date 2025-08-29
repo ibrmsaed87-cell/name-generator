@@ -40,6 +40,7 @@ export default function HomeScreen() {
   const [language, setLanguage] = useState<string>('ar');
   const [loading, setLoading] = useState<boolean>(false);
   const [generatedNames, setGeneratedNames] = useState<GeneratedName[]>([]);
+  const [detectedLanguage, setDetectedLanguage] = useState<string | null>(null);
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
   const [formData, setFormData] = useState({
     sector: '',
