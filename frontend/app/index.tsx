@@ -879,6 +879,30 @@ const styles = StyleSheet.create({
   clearButtonTextDisabled: {
     color: '#94a3b8',
   },
+  rewardedAdButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f59e0b',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginVertical: 10,
+    gap: 8,
+  },
+  rewardedAdButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    flex: 1,
+  },
+  bannerAdContainer: {
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
   nameCard: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
