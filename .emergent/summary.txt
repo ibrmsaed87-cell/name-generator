@@ -1,0 +1,76 @@
+<analysis>
+The previous AI engineer initiated development of a React Native/Expo mobile app based on the user's requirements for a Spinel Business Name Generator in Arabic and English. Core features included 8 name generation methods, saving names, domain checking, logo *image* generation, and AdMob integration. Initial setup involved backend (FastAPI/MongoDB) and frontend (Expo Router) scaffolding, with Firebase integration.
+
+Significant challenges arose from API connectivity, requiring multiple fixes for incorrect  paths and duplicate  segments in frontend calls. The logo generation feature evolved from text descriptions to actual image generation via Pollinations.ai based on user feedback. Language persistence across navigation was a recurring bug, meticulously addressed by passing language parameters through  and utilizing .
+
+AdMob integration, a late-stage requirement, was particularly problematic. The AI installed , configured , and implemented ad logic in  and UI components. However, this phase was plagued by persistent syntax errors in  and, critically, the AdMob library's incompatibility with the Expo web preview, rendering the app unusable. The AI also identified that the user provided a single AdMob App ID for all ad unit types, which is incorrect for production, but this remains a pending user action. The current state involves debugging the app's failure to launch due to AdMob, with the AI planning to temporarily remove AdMob imports.
+</analysis>
+
+<product_requirements>
+The user requested a mobile application, Spinel Business Name Generator, supporting Arabic and English, and compliant with Google Play (package name: ). The app must generate company/brand names via 8 methods: AI, sector-based, short, compound, smart random, geographic, length-based, and personality-based. Users need to save selected names locally and check domain availability (using a free service). A key evolving feature is logo *image* generation for selected names (also using a free AI service). AdMob advertisements (app-open, interstitial with reward, advanced in-content) are required. Firebase integration using  is essential. The UI/UX should be mobile-first, thumb-friendly, with consistent navigation and proper transitions, developed using React Native/Expo.
+</product_requirements>
+
+<key_technical_concepts>
+-   **Frontend:** React Native (Expo, Expo Router for routing)
+-   **Backend:** FastAPI (Python), MongoDB (database)
+-   **AI Integration:** Emergent LLM Key (for name/description), Pollinations.ai (for logo images)
+-   **State Management:** React ,  (language persistence)
+-   **Networking:** HTTP requests, 
+-   **Monetization:** Google AdMob ()
+-   **Localization:** Dynamic language detection and persistence.
+</key_technical_concepts>
+
+<code_architecture>
+The application utilizes a full-stack architecture comprising a React Native (Expo) frontend, a FastAPI backend, and a MongoDB database.
+
+**Directory Structure:**
+
+
+-   :
+    -   **Importance:** Centralizes all backend API endpoints.
+    -   **Changes:** Implemented name generation (8 methods) using Emergent LLM. Added  for smart input language detection. Integrated domain checking API. Updated logo generation API to use Pollinations.ai for base64 image generation.
+-   :
+    -   **Importance:** Environment variables for frontend configuration.
+    -   **Changes:** Corrected  to . Added  variables using user-provided IDs.
+-   :
+    -   **Importance:** Expo application configuration.
+    -   **Changes:** Configured  to . Added the  plugin and set / with the provided AdMob App ID.
+-   :
+    -   **Importance:** Manages frontend dependencies and scripts.
+    -   **Changes:** Added , , . Configured  for web preview API calls.
+-   :
+    -   **Importance:** The primary screen for name generation and navigation.
+    -   **Changes:** Implemented name generation UI. Added language switching and persistence using . Displays generated names with actions (copy, save, domain, logo). Implemented generate new names button logic. Added UI feedback for detected input language. Integrated AdMob banner, interstitial, and rewarded ads. Passed  to navigation routes. Debugged and fixed numerous API URL and syntax issues.
+-   :
+    -   **Importance:** Manages and displays saved names.
+    -   **Changes:** Integrated language loading from  and prioritizing language passed via navigation parameters.
+-   :
+    -   **Importance:** Interface for checking domain availability.
+    -   **Changes:** Calls backend domain check API. Integrated language loading from  and prioritizing language passed via navigation parameters. Implemented URL encoding for domain names in registration links.
+-   :
+    -   **Importance:** Handles AI-powered logo image generation.
+    -   **Changes:** Calls backend logo image generation API. Displays generated base64 images. Provides UI for selecting styles, colors, and options to download/regenerate. Integrated language loading from  and prioritizing language passed via navigation parameters.
+-   :
+    -   **Importance:** Centralized AdMob ad management.
+    -   **Changes:** Created to manage Banner, Interstitial, Rewarded, and App Open ads using environment variables for IDs and Google Test IDs for development. Includes logic for ad loading, showing, and frequency control.
+-   :
+    -   **Importance:** Root layout for global configurations.
+    -   **Changes:** Added logic to display an AdMob App Open ad on application launch.
+</code_architecture>
+
+<pending_tasks>
+-   **AdMob Unit IDs**: The user needs to provide unique AdMob unit IDs (Banner, Interstitial, Rewarded, App Open) from their AdMob dashboard, as the provided single ID is an App ID and will prevent ads from working correctly in production.
+-   **Resolve Frontend Crash due to AdMob**: Address the immediate bug where the  library causes syntax errors and crashes the application when run in the web preview environment.
+</pending_tasks>
+
+<current_work>
+The immediate work being addressed is resolving a critical bug preventing the application from launching. The app currently crashes upon startup in the web preview due to a syntax error related to the  library. The AI engineer has installed the library, configured it in , created  for ad management, and integrated various ad types (banner, interstitial, rewarded, app-open) into  and . Multiple attempts to fix syntax errors in  have been made. The core issue is identified as the AdMob library's incompatibility with the Expo web preview. The current plan is to temporarily remove the AdMob-related imports from the frontend code to enable the application to run for debugging and preview purposes.
+</current_work>
+
+<optional_next_step>
+Temporarily remove AdMob-related imports from the frontend code to allow the application to launch in the web preview.
+</optional_next_step>
+
+<quotes>
+أرى المشكلة! الخطأ واضح - مكتبة AdMob لا تعمل في الـ web preview. دعني أصلح هذا فوراً بإزالة imports الإعلانات مؤقتاً حتى يعمل التطبيق:
+</quotes>
