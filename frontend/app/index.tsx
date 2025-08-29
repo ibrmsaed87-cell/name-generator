@@ -651,7 +651,43 @@ export default function HomeScreen() {
             ))}
           </View>
         )}
+        
+        {/* Rewarded Ad Button */}
+        <TouchableOpacity
+          style={styles.rewardedAdButton}
+          onPress={async () => {
+            const rewarded = await showRewardedAd();
+            if (rewarded) {
+              Alert.alert(
+                language === 'ar' ? 'مكافأة!' : 'Reward!',
+                language === 'ar' 
+                  ? 'شكراً لك! تم منحك 3 توليدات إضافية مجانية' 
+                  : 'Thank you! You earned 3 additional free generations'
+              );
+              // Add bonus generations logic here
+              setFormData({...formData, count: String(Math.min(parseInt(formData.count) + 3, 10))});
+            }
+          }}
+        >
+          <Ionicons name="gift-outline" size={20} color="#ffffff" />
+          <Text style={styles.rewardedAdButtonText}>
+            {language === 'ar' ? 'شاهد إعلان واحصل على توليدات إضافية' : 'Watch Ad for Extra Generations'}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
+      
+      {/* Banner Ad at Bottom */}
+      <View style={styles.bannerAdContainer}>
+        <BannerAd
+          unitId={AdUnitIds.BANNER}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: false,
+          }}
+          onAdLoaded={() => console.log('Banner ad loaded')}
+          onAdFailedToLoad={(error) => console.log('Banner ad failed to load:', error)}
+        />
+      </View>
     </SafeAreaView>
   );
 }
