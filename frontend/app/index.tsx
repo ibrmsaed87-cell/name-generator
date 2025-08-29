@@ -51,7 +51,33 @@ export default function HomeScreen() {
     count: '5'
   });
 
-  const generationTypes = [
+  // Load language preference on component mount
+  useEffect(() => {
+    const loadLanguagePreference = async () => {
+      try {
+        const savedLanguage = await AsyncStorage.getItem('appLanguage');
+        if (savedLanguage) {
+          setLanguage(savedLanguage);
+        }
+      } catch (error) {
+        console.error('Error loading language preference:', error);
+      }
+    };
+
+    loadLanguagePreference();
+    loadSavedNames();
+  }, []);
+
+  // Save language preference when changed
+  const changeLanguage = async (newLanguage: string) => {
+    try {
+      setLanguage(newLanguage);
+      await AsyncStorage.setItem('appLanguage', newLanguage);
+    } catch (error) {
+      console.error('Error saving language preference:', error);
+      setLanguage(newLanguage); // Still change the language even if saving fails
+    }
+  };
     { id: 'ai', nameAr: 'الذكاء الاصطناعي', nameEn: 'AI Generation', icon: 'bulb-outline' },
     { id: 'sector', nameAr: 'حسب القطاع', nameEn: 'By Sector', icon: 'business-outline' },
     { id: 'abbreviated', nameAr: 'أسماء مختصرة', nameEn: 'Abbreviated', icon: 'text-outline' },
