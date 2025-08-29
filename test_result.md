@@ -509,7 +509,22 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Name Generation - AI-powered"
+    - "Name Generation - Sector-based"
+    - "Name Generation - Abbreviated"
+    - "Name Generation - Compound"
+    - "Name Generation - Smart Random"
+    - "Name Generation - Geographic"
+    - "Name Generation - Length-based"
+    - "Name Generation - Personality-based"
+    - "Language Support"
+    - "Saved Names Functionality"
+    - "Domain Check Feature"
+    - "Logo Generator Feature"
+    - "Navigation & UI"
+    - "Form Interactions"
+    - "Data Persistence"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -517,3 +532,5 @@ test_plan:
 agent_communication:
     - agent: "testing"
       message: "Comprehensive backend testing completed successfully. All 24 test cases passed after fixing MongoDB connection and error handling issues. The Spinel Name Generator API is fully functional with all features working correctly including AI name generation, domain checking, logo generation, and CRUD operations."
+    - agent: "testing"
+      message: "Starting comprehensive frontend testing of Spinel Name Generator mobile app. Will test all 8 name generation types, language support, saved names functionality, domain checking, logo generation, navigation, and data persistence using mobile viewport (390x844)."
