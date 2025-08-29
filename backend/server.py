@@ -13,6 +13,8 @@ import random
 import requests
 import json
 import re
+import base64
+from io import BytesIO
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
