@@ -112,6 +112,9 @@ export default function HomeScreen() {
         body: JSON.stringify(requestData),
       });
 
+      console.log('API Response status:', response.status);
+      console.log('Backend URL:', BACKEND_URL);
+
       if (!response.ok) {
         throw new Error('Failed to generate names');
       }
