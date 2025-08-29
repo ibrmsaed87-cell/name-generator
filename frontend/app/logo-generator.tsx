@@ -18,9 +18,16 @@ import * as Clipboard from 'expo-clipboard';
 
 interface LogoGenerationResponse {
   company_name: string;
-  logo_description: string;
-  preview_url?: string;
-  download_formats: string[];
+  style: string;
+  colors: string[];
+  result: {
+    success: boolean;
+    image_url?: string;
+    image_base64?: string;
+    prompt?: string;
+    error?: string;
+    fallback_description?: string;
+  };
 }
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
