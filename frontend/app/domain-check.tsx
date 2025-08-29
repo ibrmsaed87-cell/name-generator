@@ -31,7 +31,7 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function DomainCheckScreen() {
   const router = useRouter();
-  const { name } = useLocalSearchParams<{ name: string }>();
+  const { name, language: passedLanguage } = useLocalSearchParams<{ name: string; language: string }>();
   const [loading, setLoading] = useState(false);
   const [domainResults, setDomainResults] = useState<DomainCheckResponse | null>(null);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
@@ -39,9 +39,15 @@ export default function DomainCheckScreen() {
   useEffect(() => {
     const loadLanguage = async () => {
       try {
-        const savedLang = await AsyncStorage.getItem('appLanguage');
-        if (savedLang) {
-          setLanguage(savedLang as 'ar' | 'en');
+        // First check if language was passed as parameter
+        if (passedLanguage) {
+          setLanguage(passedLanguage as 'ar' | 'en');
+        } else {
+          // Otherwise load from AsyncStorage
+          const savedLang = await AsyncStorage.getItem('appLanguage');
+          if (savedLang) {
+            setLanguage(savedLang as 'ar' | 'en');
+          }
         }
       } catch (error) {
         console.error('Error loading language:', error);
@@ -52,7 +58,7 @@ export default function DomainCheckScreen() {
     if (name) {
       checkDomains();
     }
-  }, [name]);
+  }, [name, passedLanguage]);
 
   const checkDomains = async () => {
     if (!name) return;
