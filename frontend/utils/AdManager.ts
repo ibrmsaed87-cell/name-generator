@@ -1,312 +1,184 @@
 import { Platform } from 'react-native';
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-  InterstitialAd,
-  RewardedAd,
-  RewardedAdEventType,
-  AdEventType,
-  AppOpenAd,
-} from 'react-native-google-mobile-ads';
 
-// Ad Unit IDs from environment variables
-const ADMOB_APP_ID = process.env.EXPO_PUBLIC_ADMOB_APP_ID;
-const BANNER_AD_ID = process.env.EXPO_PUBLIC_ADMOB_BANNER_ID || TestIds.BANNER;
-const INTERSTITIAL_AD_ID = process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID || TestIds.INTERSTITIAL;
-const REWARDED_AD_ID = process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID || TestIds.REWARDED;
-const APP_OPEN_AD_ID = process.env.EXPO_PUBLIC_ADMOB_APP_OPEN_ID || TestIds.APP_OPEN;
+// AdMob IDs from environment variables
+const ADMOB_APP_ID = process.env.EXPO_PUBLIC_ADMOB_APP_ID || '';
+const ADMOB_BANNER_ID = process.env.EXPO_PUBLIC_ADMOB_BANNER_ID || '';
+const ADMOB_INTERSTITIAL_ID = process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID || '';
+const ADMOB_REWARDED_ID = process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID || '';
+const ADMOB_APP_OPEN_ID = process.env.EXPO_PUBLIC_ADMOB_APP_OPEN_ID || '';
 
-// Use test ads in development or if no real IDs provided
-const isDevelopment = __DEV__ || !ADMOB_APP_ID;
-
-export const AdUnitIds = {
-  BANNER: isDevelopment ? TestIds.BANNER : BANNER_AD_ID,
-  INTERSTITIAL: isDevelopment ? TestIds.INTERSTITIAL : INTERSTITIAL_AD_ID,
-  REWARDED: isDevelopment ? TestIds.REWARDED : REWARDED_AD_ID,
-  APP_OPEN: isDevelopment ? TestIds.APP_OPEN : APP_OPEN_AD_ID,
+// Test IDs for development
+const TEST_IDS = {
+  BANNER: __DEV__ ? 'ca-app-pub-3940256099942544/6300978111' : ADMOB_BANNER_ID,
+  INTERSTITIAL: __DEV__ ? 'ca-app-pub-3940256099942544/1033173712' : ADMOB_INTERSTITIAL_ID,
+  REWARDED: __DEV__ ? 'ca-app-pub-3940256099942544/5224354917' : ADMOB_REWARDED_ID,
+  APP_OPEN: __DEV__ ? 'ca-app-pub-3940256099942544/3419835294' : ADMOB_APP_OPEN_ID,
 };
 
-// Interstitial Ad Manager
-class InterstitialAdManager {
-  private ad: InterstitialAd;
-  private isLoaded = false;
-  private isLoading = false;
+// Check if running on mobile platform
+const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
-  constructor() {
-    this.ad = InterstitialAd.createForAdRequest(AdUnitIds.INTERSTITIAL, {
-      requestNonPersonalizedAdsOnly: false,
-    });
-    
-    this.setupEventListeners();
-    this.loadAd();
-  }
+// Mock components and functions for web platform
+const WebMockBannerAd = ({ unitId, size, onAdLoaded, onAdFailedToLoad, ...props }: any) => {
+  // Return null for web - no ad component
+  return null;
+};
 
-  private setupEventListeners() {
-    this.ad.addAdEventListener(AdEventType.LOADED, () => {
-      console.log('Interstitial ad loaded');
-      this.isLoaded = true;
-      this.isLoading = false;
-    });
+// Web-safe AdMob utilities
+let InterstitialAd: any = null;
+let RewardedAd: any = null;
+let BannerAd: any = WebMockBannerAd;
+let BannerAdSize: any = { ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER' };
+let AdEventType: any = {};
+let RewardedAdEventType: any = {};
 
-    this.ad.addAdEventListener(AdEventType.ERROR, (error) => {
-      console.log('Interstitial ad error:', error);
-      this.isLoaded = false;
-      this.isLoading = false;
-      // Retry loading after 30 seconds
-      setTimeout(() => this.loadAd(), 30000);
-    });
-
-    this.ad.addAdEventListener(AdEventType.CLOSED, () => {
-      console.log('Interstitial ad closed');
-      this.isLoaded = false;
-      // Load next ad
-      this.loadAd();
-    });
-
-    this.ad.addAdEventListener(AdEventType.OPENED, () => {
-      console.log('Interstitial ad opened');
-    });
-  }
-
-  private loadAd() {
-    if (!this.isLoading && !this.isLoaded) {
-      console.log('Loading interstitial ad...');
-      this.isLoading = true;
-      this.ad.load();
-    }
-  }
-
-  public show() {
-    if (this.isLoaded) {
-      console.log('Showing interstitial ad');
-      this.ad.show();
-    } else {
-      console.log('Interstitial ad not ready, loading...');
-      this.loadAd();
-    }
-  }
-
-  public get ready() {
-    return this.isLoaded;
+// Load actual AdMob components only on mobile
+if (isMobile) {
+  try {
+    const AdMobComponents = require('react-native-google-mobile-ads');
+    InterstitialAd = AdMobComponents.InterstitialAd;
+    RewardedAd = AdMobComponents.RewardedAd;
+    BannerAd = AdMobComponents.BannerAd;
+    BannerAdSize = AdMobComponents.BannerAdSize;
+    AdEventType = AdMobComponents.AdEventType;
+    RewardedAdEventType = AdMobComponents.RewardedAdEventType;
+  } catch (error) {
+    console.log('AdMob not available on this platform:', error);
   }
 }
 
-// Rewarded Ad Manager
-class RewardedAdManager {
-  private ad: RewardedAd;
-  private isLoaded = false;
-  private isLoading = false;
+class AdManager {
+  private interstitialAd: any = null;
+  private rewardedAd: any = null;
+  private isInterstitialLoaded = false;
+  private isRewardedLoaded = false;
 
   constructor() {
-    this.ad = RewardedAd.createForAdRequest(AdUnitIds.REWARDED, {
-      requestNonPersonalizedAdsOnly: false,
-    });
-    
-    this.setupEventListeners();
-    this.loadAd();
-  }
-
-  private setupEventListeners() {
-    this.ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
-      console.log('Rewarded ad loaded');
-      this.isLoaded = true;
-      this.isLoading = false;
-    });
-
-    this.ad.addAdEventListener(RewardedAdEventType.ERROR, (error) => {
-      console.log('Rewarded ad error:', error);
-      this.isLoaded = false;
-      this.isLoading = false;
-      // Retry loading after 30 seconds
-      setTimeout(() => this.loadAd(), 30000);
-    });
-
-    this.ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, (reward) => {
-      console.log('Rewarded ad reward earned:', reward);
-    });
-
-    this.ad.addAdEventListener(RewardedAdEventType.CLOSED, () => {
-      console.log('Rewarded ad closed');
-      this.isLoaded = false;
-      // Load next ad
-      this.loadAd();
-    });
-
-    this.ad.addAdEventListener(RewardedAdEventType.OPENED, () => {
-      console.log('Rewarded ad opened');
-    });
-  }
-
-  private loadAd() {
-    if (!this.isLoading && !this.isLoaded) {
-      console.log('Loading rewarded ad...');
-      this.isLoading = true;
-      this.ad.load();
+    if (isMobile && InterstitialAd && RewardedAd) {
+      this.initializeAds();
     }
   }
 
-  public show() {
-    return new Promise<boolean>((resolve) => {
-      if (this.isLoaded) {
-        console.log('Showing rewarded ad');
-        
-        const earnedRewardListener = this.ad.addAdEventListener(
-          RewardedAdEventType.EARNED_REWARD,
-          () => {
-            earnedRewardListener();
-            resolve(true);
-          }
-        );
+  private initializeAds() {
+    try {
+      // Initialize Interstitial Ad
+      this.interstitialAd = InterstitialAd.createForAdRequest(TEST_IDS.INTERSTITIAL);
+      
+      this.interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+        this.isInterstitialLoaded = true;
+        console.log('Interstitial ad loaded');
+      });
 
-        const closedListener = this.ad.addAdEventListener(
-          RewardedAdEventType.CLOSED,
-          () => {
-            closedListener();
-            if (earnedRewardListener) {
-              earnedRewardListener();
-              resolve(false);
-            }
-          }
-        );
+      this.interstitialAd.addAdEventListener(AdEventType.ERROR, (error: any) => {
+        console.log('Interstitial ad error:', error);
+        this.isInterstitialLoaded = false;
+      });
 
-        this.ad.show();
-      } else {
-        console.log('Rewarded ad not ready');
+      this.interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+        console.log('Interstitial ad closed');
+        this.loadInterstitialAd();
+      });
+
+      // Initialize Rewarded Ad
+      this.rewardedAd = RewardedAd.createForAdRequest(TEST_IDS.REWARDED);
+      
+      this.rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        this.isRewardedLoaded = true;
+        console.log('Rewarded ad loaded');
+      });
+
+      this.rewardedAd.addAdEventListener(RewardedAdEventType.ERROR, (error: any) => {
+        console.log('Rewarded ad error:', error);
+        this.isRewardedLoaded = false;
+      });
+
+      this.rewardedAd.addAdEventListener(RewardedAdEventType.CLOSED, () => {
+        console.log('Rewarded ad closed');
+        this.loadRewardedAd();
+      });
+
+      // Load initial ads
+      this.loadInterstitialAd();
+      this.loadRewardedAd();
+    } catch (error) {
+      console.log('Error initializing ads:', error);
+    }
+  }
+
+  private loadInterstitialAd() {
+    if (this.interstitialAd && !this.isInterstitialLoaded) {
+      this.interstitialAd.load();
+    }
+  }
+
+  private loadRewardedAd() {
+    if (this.rewardedAd && !this.isRewardedLoaded) {
+      this.rewardedAd.load();
+    }
+  }
+
+  showInterstitialAd(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!isMobile) {
+        console.log('Interstitial ad simulated on web');
         resolve(false);
-        this.loadAd();
+        return;
+      }
+
+      if (this.interstitialAd && this.isInterstitialLoaded) {
+        this.interstitialAd.show();
+        this.isInterstitialLoaded = false;
+        resolve(true);
+      } else {
+        console.log('Interstitial ad not ready');
+        resolve(false);
       }
     });
   }
 
-  public get ready() {
-    return this.isLoaded;
+  showRewardedAd(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!isMobile) {
+        console.log('Rewarded ad simulated on web');
+        resolve(true); // Always grant reward on web for testing
+        return;
+      }
+
+      if (this.rewardedAd && this.isRewardedLoaded) {
+        let rewardGranted = false;
+        
+        const rewardListener = this.rewardedAd.addAdEventListener(
+          RewardedAdEventType.EARNED_REWARD,
+          () => {
+            rewardGranted = true;
+            console.log('User earned reward');
+          }
+        );
+
+        const closedListener = this.rewardedAd.addAdEventListener(
+          RewardedAdEventType.CLOSED,
+          () => {
+            rewardListener();
+            closedListener();
+            resolve(rewardGranted);
+          }
+        );
+
+        this.rewardedAd.show();
+        this.isRewardedLoaded = false;
+      } else {
+        console.log('Rewarded ad not ready');
+        resolve(false);
+      }
+    });
   }
 }
 
-// App Open Ad Manager
-class AppOpenAdManager {
-  private ad: AppOpenAd;
-  private isLoaded = false;
-  private isLoading = false;
-  private isShowing = false;
+// Export the AdManager instance and components
+const adManager = new AdManager();
 
-  constructor() {
-    this.ad = AppOpenAd.createForAdRequest(AdUnitIds.APP_OPEN, {
-      requestNonPersonalizedAdsOnly: false,
-    });
-    
-    this.setupEventListeners();
-    this.loadAd();
-  }
-
-  private setupEventListeners() {
-    this.ad.addAdEventListener(AdEventType.LOADED, () => {
-      console.log('App open ad loaded');
-      this.isLoaded = true;
-      this.isLoading = false;
-    });
-
-    this.ad.addAdEventListener(AdEventType.ERROR, (error) => {
-      console.log('App open ad error:', error);
-      this.isLoaded = false;
-      this.isLoading = false;
-      // Retry loading after 30 seconds
-      setTimeout(() => this.loadAd(), 30000);
-    });
-
-    this.ad.addAdEventListener(AdEventType.CLOSED, () => {
-      console.log('App open ad closed');
-      this.isLoaded = false;
-      this.isShowing = false;
-      // Load next ad
-      this.loadAd();
-    });
-
-    this.ad.addAdEventListener(AdEventType.OPENED, () => {
-      console.log('App open ad opened');
-      this.isShowing = true;
-    });
-  }
-
-  private loadAd() {
-    if (!this.isLoading && !this.isLoaded) {
-      console.log('Loading app open ad...');
-      this.isLoading = true;
-      this.ad.load();
-    }
-  }
-
-  public show() {
-    if (this.isLoaded && !this.isShowing) {
-      console.log('Showing app open ad');
-      this.ad.show();
-    } else if (!this.isLoaded) {
-      console.log('App open ad not ready, loading...');
-      this.loadAd();
-    }
-  }
-
-  public get ready() {
-    return this.isLoaded;
-  }
-}
-
-// Singleton instances
-export const interstitialAdManager = new InterstitialAdManager();
-export const rewardedAdManager = new RewardedAdManager();
-export const appOpenAdManager = new AppOpenAdManager();
-
-// Ad frequency control
-class AdFrequencyManager {
-  private lastInterstitialTime = 0;
-  private lastRewardedTime = 0;
-  private interstitialMinInterval = 60 * 1000; // 1 minute
-  private rewardedMinInterval = 30 * 1000; // 30 seconds
-
-  public canShowInterstitial(): boolean {
-    const now = Date.now();
-    return (now - this.lastInterstitialTime) >= this.interstitialMinInterval;
-  }
-
-  public canShowRewarded(): boolean {
-    const now = Date.now();
-    return (now - this.lastRewardedTime) >= this.rewardedMinInterval;
-  }
-
-  public recordInterstitialShow(): void {
-    this.lastInterstitialTime = Date.now();
-  }
-
-  public recordRewardedShow(): void {
-    this.lastRewardedTime = Date.now();
-  }
-}
-
-export const adFrequencyManager = new AdFrequencyManager();
-
-// Helper functions
-export const showInterstitialAd = () => {
-  if (adFrequencyManager.canShowInterstitial() && interstitialAdManager.ready) {
-    interstitialAdManager.show();
-    adFrequencyManager.recordInterstitialShow();
-  } else {
-    console.log('Interstitial ad not ready or too frequent');
-  }
-};
-
-export const showRewardedAd = async (): Promise<boolean> => {
-  if (adFrequencyManager.canShowRewarded() && rewardedAdManager.ready) {
-    adFrequencyManager.recordRewardedShow();
-    return await rewardedAdManager.show();
-  } else {
-    console.log('Rewarded ad not ready or too frequent');
-    return false;
-  }
-};
-
-export const showAppOpenAd = () => {
-  appOpenAdManager.show();
-};
-
+export const AdUnitIds = TEST_IDS;
 export { BannerAd, BannerAdSize };
+export const showInterstitialAd = () => adManager.showInterstitialAd();
+export const showRewardedAd = () => adManager.showRewardedAd();
+export default adManager;
